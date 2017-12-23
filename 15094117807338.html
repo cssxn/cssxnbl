@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>
+    
+  写壳过程中遇到的问题 - 小时候很萌
+  
+
+  </title>
+  <meta name="author" content="">
+  <meta name="description" content="A better you，a bigger world">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link href="asset/css/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="atom.xml" rel="alternate" title="小时候很萌" type="application/atom+xml">
+  <script src="asset/js/modernizr-2.0.js"></script>
+  <script src="asset/js/jquery.min.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <style type="text/css">
+  .cat-children-p{ padding: 6px 0px;}
+  .hljs{background: none;}
+  </style>
+  <script type="text/javascript">
+  var isAddSildbar = true;
+  </script>
+  <script src="asset/js/octopress.js" type="text/javascript"></script>
+</head>
+<script type="text/javascript">
+//链接新开窗口
+function addBlankTargetForLinks () {
+  $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+  });
+}
+$(document).ready(function(event) {
+  addBlankTargetForLinks();
+});
+</script>
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="index.html">小时候很萌</a></h1>
+  
+    <h2>A better you，a bigger world</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+
+  <li id=""><a target="_self" href="index.html">Home</a></li>
+
+  <li id=""><a target="_self" href="archives.html">Archives</a></li>
+
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content"> 
+<div>
+	<article class="hentry" role="article">
+	<header>
+			  	<h1 class="entry-title">写壳过程中遇到的问题</h1>
+				<p class="meta"><time datetime="2017-10-31T09:03:00+08:00" pubdate data-updated="true">2017/10/31</time></p>
+			 </header>
+		  	<div class="entry-content">
+			  	<p>最近的项目是使用C++和内联汇编写一款壳，记录一下在写壳过程中遇到了一些小问题</p>
+
+<span id="more"></span><!-- more -->
+
+<h3 id="toc_0">0x01 修复重定位</h3>
+
+<p>DLL文件是存放真正的壳代码的文件，壳代码中会用到一些全局变量，当我们把DLL文件中的代码段和数据段拷贝到目标程序的时候，自然也会涉及到重定位的问题。</p>
+
+<p><code>PEDoctor.EXE</code> 用来加载壳代码，和要加壳的程序<code>Target.EXE</code>，再拷贝壳代码到目标程序之前需要先把壳代码中需要重定位的数据块，修改成正确的VA。</p>
+
+<p>如果修改重定位的代码是直接使用DLL的句柄操作的，那么DLL在卸载的时候就会出现问题。</p>
+
+<p>解决方法：使用<code>LoadLibraryEx</code>并指定<code>DONT_RESOLVE_DLL_REFERENCES</code>参数</p>
+
+<pre><code>LoadLibraryEx(“shell.dll”, NULL, DONT_RESOLVE_DLL_REFERENCES);
+</code></pre>
+
+<h3 id="toc_1">0x02 IAT加密</h3>
+
+<p>在壳代码中手动修复exe程序的导入表，修复过程中，可以选择对导入表导出的函数地址进行加密。<br/>
+我这里使用了一种比较简单的方法，具体步骤如下：</p>
+
+<ol>
+<li>获取到导入表导入的函数地址</li>
+<li>使用<code>VirtualAlloc</code>申请一段堆内存，权限为<code>PAGE_EXECUTE_READWRITE</code></li>
+<li>准备一段Shellcode，功能是跳转到正确的导入函数地址，使用memcpy复制到刚才申请的堆内存中</li>
+<li>把申请堆内存地址，保存到原本IAT的位置</li>
+</ol>
+
+<p>因为加密方式是使用Shellcode跳转到正确IAT函数的方式，在测试加壳期间遇到的问题是，对控制台程序加壳后可以正常运行，对MFC程序进行加壳后程序崩溃在壳代码运行完之后，进入exe程序main函数之前的一段系统代码。</p>
+
+<p>经过OD调试发现程序崩溃在获取一个IAT函数地址的地方，该函数名为<code>_wcmdln</code>是从<code>MSVCR120.DLL</code>导出的，经过查询MSDN得知该地址导出的其实是一个全局变量，突然想起来，DLL不光可以导出函数，还可以导出全局变量，和类对象。</p>
+
+<p>所以在加密IAT的时候需要对导出的地址进行判断，该导出地址是不是属于当前导入DLL模块的代码段。<br/>
+如果是代码段则使用Shellcode加密IAT，如果不是那该地址有可能是全局变量了，就不用加密了！</p>
+
+<p>在填充IAT前注意修改一下该地址的内存保护属性，因为默认的代码段和只读数据段，一般没有可写属性。</p>
+
+<p>下面的FixIAT函数是壳代码对exe程序的IAT进行遍历，包括使用Shellcode进行加密的具体代码。</p>
+
+<p>代码参考</p>
+
+<pre><code>// 修复exe的导入表
+void FixIAT(CHAR * pExeBuf)
+{
+    // Shellcode
+    unsigned char shellcode[8] = &quot;\x90\x90\x90\xE9&quot;;
+
+    // 从PE头中获取之前保存的exe导入表信息
+    PIMAGE_DATA_DIRECTORY pImpData = (PIMAGE_DATA_DIRECTORY)(pExeBuf + 14);
+
+    // 获取导入表数组的第一个描述符VA,也是导入表数组的首地址
+    PIMAGE_IMPORT_DESCRIPTOR pImportDesc = (PIMAGE_IMPORT_DESCRIPTOR)(pExeBuf + pImpData-&gt;VirtualAddress);
+
+    while (pImportDesc-&gt;Name)
+    {
+        // 获取第一个INT的VA
+        PIMAGE_THUNK_DATA pINT = (PIMAGE_THUNK_DATA)(pImportDesc-&gt;OriginalFirstThunk+pExeBuf);
+
+        // 获取第一个IAT的VA
+        PIMAGE_THUNK_DATA pIAT = (PIMAGE_THUNK_DATA)(pImportDesc-&gt;FirstThunk + pExeBuf);
+
+        // 加载当前导入表的dll模块
+        HMODULE hDll = LoadLibraryA(pImportDesc-&gt;Name+pExeBuf);
+        PCHAR pDLLBuf = (PCHAR)hDll;
+
+        // 获取加载DLL代码段的地址和大小
+        DWORD dwTextVA = 0;
+        DWORD dwTextSize =0;
+
+        // 获取DLL代码段信息
+        PIMAGE_DOS_HEADER pDLLDos = (PIMAGE_DOS_HEADER)pDLLBuf;
+        PIMAGE_NT_HEADERS pDLLNt = (PIMAGE_NT_HEADERS)(pDLLDos-&gt;e_lfanew + pDLLBuf);
+        PIMAGE_SECTION_HEADER pDLLSection = IMAGE_FIRST_SECTION(pDLLNt);
+        for (int i = 0; i &lt; pDLLNt-&gt;FileHeader.NumberOfSections; i++)
+        {
+            if (strcmp((char*)pDLLSection-&gt;Name, &quot;.text&quot;) == 0)
+            {
+                dwTextVA = (pDLLSection-&gt;VirtualAddress + (DWORD)pDLLBuf);
+                dwTextSize = pDLLSection-&gt;Misc.VirtualSize;
+                break;
+            }
+            pDLLSection++;
+        }
+
+        // 遍历INT
+        DWORD dwINTIndex = 0;
+        while (pINT-&gt;u1.Ordinal)
+        {
+
+            DWORD dwAddressOfFun = 0;
+            // 判断最高位是否不为1,是的话则打印addressOfData的内容
+            if (!IMAGE_SNAP_BY_ORDINAL(pINT-&gt;u1.Ordinal))
+            {
+                // 获取函数名称
+                PIMAGE_IMPORT_BY_NAME pBN = (PIMAGE_IMPORT_BY_NAME)(pINT-&gt;u1.AddressOfData+pExeBuf);
+
+                // 获取该函数的地址
+                dwAddressOfFun = (DWORD)GetProcAddress(hDll, pBN-&gt;Name);
+            }
+            else
+            {
+                // 获取该函数的地址
+                dwAddressOfFun = (DWORD)GetProcAddress(hDll, (PCHAR)(pINT-&gt;u1.Ordinal &amp; 0xFFFF));
+            }
+            
+            if (dwTextVA &amp;&amp; dwAddressOfFun &gt;= dwTextVA &amp;&amp; dwAddressOfFun &lt; (dwTextVA + dwTextSize))
+            {
+                // 修改内存保护属性
+                DWORD oldProtect = 0;
+                VirtualProtect((pIAT + dwINTIndex), 4, PAGE_EXECUTE_READWRITE, &amp;oldProtect);
+
+                // 申请一段内存,保存真正的IAT函数地址
+                PVOID p = VirtualAlloc(NULL, sizeof(shellcode), MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+                // 写入shellcode到堆内存
+                DWORD dwTarget = (dwAddressOfFun - (DWORD)p - 8);
+                *(PDWORD)(shellcode + 4) = dwTarget;
+
+                memcpy(p, shellcode, sizeof(shellcode));
+
+                // 把申请的堆内存赋值给IAT
+                *(int*)(pIAT + dwINTIndex) = (int)p;
+
+                // 恢复内存保护属性
+                VirtualProtect((pIAT + dwINTIndex), 4, oldProtect, &amp;oldProtect);
+            }
+            else
+            {
+                // 修改内存保护属性
+                DWORD oldProtect = 0;
+                VirtualProtect((pIAT + dwINTIndex), 4, PAGE_EXECUTE_READWRITE, &amp;oldProtect);
+
+                // 把申请的堆内存赋值给IAT
+                *(int*)(pIAT + dwINTIndex) = dwAddressOfFun;
+
+                // 恢复内存保护属性
+                VirtualProtect((pIAT + dwINTIndex), 4, oldProtect, &amp;oldProtect);
+            }
+
+            // 继续寻找下一个函数名称
+            dwINTIndex++;
+            pINT++;
+        }
+
+        // 寻找下一个导入表
+        pImportDesc++;
+    }
+}
+</code></pre>
+
+			</div>
+
+		
+	  
+		<footer>
+		 <p class="meta">
+
+			<strong>Categories:</strong>&nbsp; 
+			<span class="categories">
+			
+			    <a class='category' href='%E8%84%B1%E5%A3%B3%E7%BB%83%E4%B9%A0.html'>脱壳练习</a>&nbsp;
+			 
+			</span>
+		    </p>
+		    <p class="meta">
+		      
+		 </p>
+	    
+		<div class="sharing">
+		  
+          
+
+          
+
+		</div>
+
+	    <p class="meta">
+	    
+	        <a class="basic-alignment left" href="15096836947247.html" 
+	        title="Previous Post: C/C++ 常见类型转换">&laquo; C/C++ 常见类型转换</a>
+	    
+	    
+	        <a class="basic-alignment right" href="15091608826035.html" 
+	        title="Next Post: 手脱FSG2.0">手脱FSG2.0 &raquo;</a>
+	    
+	    </p>
+	  </footer>
+	</article>
+</div>
+ <aside class="sidebar"> 
+
+	<section>
+	  <h1>Categories</h1>
+	  <ul id="recent_posts">
+	  
+	      <li class="post">
+	        <a href="%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91.html"><strong>驱动开发&nbsp;(3)</strong></a>
+	        
+	        
+	        
+	      </li>
+	  
+	      <li class="post">
+	        <a href="C/C++.html"><strong>C/C++&nbsp;(1)</strong></a>
+	        
+	        
+	        
+	      </li>
+	  
+	      <li class="post">
+	        <a href="%E8%84%B1%E5%A3%B3%E7%BB%83%E4%B9%A0.html"><strong>脱壳练习&nbsp;(2)</strong></a>
+	        
+	        
+	        
+	      </li>
+	   
+	  </ul>
+	</section>
+	<section>
+	  <h1>Recent Posts</h1>
+	  <ul id="recent_posts">
+	  
+	      
+		      <li class="post">
+		        <a href="15138357843110.html">Win10Dev & Reverse Engineering Environment</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15101847974528.html">[Virtual Studio] 编译驱动报错 1>22.9.7: DriverVer set to a date in the future (postdated DriverVer not allowed)</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15100483191511.html">配置Windows内核调试环境-[Mac版]</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15100336071888.html">编写驱动前需要的准备</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15096836947247.html">C/C++ 常见类型转换</a>
+		      </li>
+	     
+	  
+	      
+	  
+	      
+	   
+	  </ul>
+	</section>
+	
+</aside> </div></div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  -
+  <span class="credit">Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a> &nbsp;&nbsp; Theme by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+  
+    
+
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+
+</body>
+</html>

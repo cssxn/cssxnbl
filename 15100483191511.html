@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>
+    
+  配置Windows内核调试环境-[Mac版] - 小时候很萌
+  
+
+  </title>
+  <meta name="author" content="">
+  <meta name="description" content="A better you，a bigger world">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link href="asset/css/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="atom.xml" rel="alternate" title="小时候很萌" type="application/atom+xml">
+  <script src="asset/js/modernizr-2.0.js"></script>
+  <script src="asset/js/jquery.min.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <style type="text/css">
+  .cat-children-p{ padding: 6px 0px;}
+  .hljs{background: none;}
+  </style>
+  <script type="text/javascript">
+  var isAddSildbar = true;
+  </script>
+  <script src="asset/js/octopress.js" type="text/javascript"></script>
+</head>
+<script type="text/javascript">
+//链接新开窗口
+function addBlankTargetForLinks () {
+  $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+  });
+}
+$(document).ready(function(event) {
+  addBlankTargetForLinks();
+});
+</script>
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="index.html">小时候很萌</a></h1>
+  
+    <h2>A better you，a bigger world</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+
+  <li id=""><a target="_self" href="index.html">Home</a></li>
+
+  <li id=""><a target="_self" href="archives.html">Archives</a></li>
+
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content"> 
+<div>
+	<article class="hentry" role="article">
+	<header>
+			  	<h1 class="entry-title">配置Windows内核调试环境-[Mac版]</h1>
+				<p class="meta"><time datetime="2017-11-07T17:51:59+08:00" pubdate data-updated="true">2017/11/7</time></p>
+			 </header>
+		  	<div class="entry-content">
+			  	<p>折腾了好久，终于好了，参考了很多残缺不全的教程，配置过程中遇到了很多问题！</p>
+
+<span id="more"></span><!-- more -->
+
+<h3 id="toc_0">0x01 环境介绍</h3>
+
+<ul>
+<li>虚拟机软件：VMware Fusion</li>
+<li>调试机：Windows 7 x64</li>
+<li>被调试机：15PB信息安全实验环境-Windows7(32)</li>
+</ul>
+
+<p><img src="media/15100483191511/15100491854262.jpg" alt=""/></p>
+
+<p>被调试的虚拟机<code>15PB信息安全实验环境-Windows7(32)</code>是放在<code>固态移动硬盘</code>里面的，这个虚拟机是用Windows的VMware创建的虚拟机，所以没有和其他虚拟机分类在一起</p>
+
+<h3 id="toc_1">0x02 配置两个虚拟机的串行端口</h3>
+
+<p>首先需要给<code>调试机</code>和<code>被调试机</code>配置一个串行端口用来通讯，找到虚拟机的vmx文件</p>
+
+<p><img src="media/15100483191511/15100495969788.gif" alt=""/></p>
+
+<p>右键使用文本编辑工具打开.VMX文件，然后追加下面的几行配置串行端口</p>
+
+<p><strong>调试机器 - Windows 7 x64</strong></p>
+
+<pre><code>serial1.present = &quot;TRUE&quot;
+serial1.fileType = &quot;pipe&quot;
+serial1.startConnected = &quot;TRUE&quot;
+serial1.fileName = &quot;/private/tmp/serial&quot;
+serial1.tryNoRxLoss = &quot;FALSE&quot;
+serial1.pipe.endPoint = &quot;client&quot;
+</code></pre>
+
+<p><strong>被调试机器 - 15PB信息安全实验环境-Windows7(32)</strong></p>
+
+<pre><code>serial1.present = &quot;TRUE&quot;
+serial1.fileType = &quot;pipe&quot;
+serial1.fileName = &quot;/private/tmp/serial&quot;
+serial1.tryNoRxLoss = &quot;FALSE&quot;
+serial1.pipe.endPoint = &quot;server&quot;
+</code></pre>
+
+<p>配置好刚才的信息以后，可以启动两个虚拟机了，开机后，右击我的电脑-&gt;管理-&gt;设备管理器-&gt;端口</p>
+
+<p>找到下面的com1，右键属性-&gt;端口设置，波特率改成115200</p>
+
+<p><img src="media/15100483191511/15100506036508.jpg" alt=""/></p>
+
+<p>上面修改波特率，两个虚拟机都要改。</p>
+
+<h3 id="toc_2">0x03 添加开机引导项</h3>
+
+<blockquote>
+<p>进入<code>被调试虚拟机</code>添加<code>开机引导向</code></p>
+</blockquote>
+
+<p>这里网上很多人说修改C://boot.ini 这个文件，但是我的windows7系统没有这个引导文件，所以我们使用系统自带的DOS命令<code>bcdedit</code>来添加引导。</p>
+
+<p>以管理员权限打开CMD，然后输入依次输入下面几条命令</p>
+
+<pre><code>bcdedit /copy {current} /d &quot;Windwos7&quot;
+bcdedit /debug ON
+bcdedit /bootdebug ON
+bcdedit /timeout 10
+</code></pre>
+
+<p>查看当前调试配置</p>
+
+<pre><code>bcdedit /dbgsettings
+</code></pre>
+
+<h3 id="toc_3">0x04 设置被调试机的Kernel Debug连线</h3>
+
+<blockquote>
+<p>进入被调试虚拟机</p>
+</blockquote>
+
+<p>在运行窗口，输入<code>msconfig</code>，会打开系统配置窗口，然后选择我们刚才<code>新创建的引导</code>，点击<code>高级选项</code>按钮</p>
+
+<p>在弹出的<code>引导高级选项</code>窗口，勾选上<code>调试</code>，选择我们刚才设置好的<code>COM Port</code><br/>
+和<code>波特率</code></p>
+
+<p><img src="media/15100483191511/15100517666280.jpg" alt=""/></p>
+
+<h3 id="toc_4">0x05 在DebuggerVM上调试Debuggee的内核</h3>
+
+<blockquote>
+<p>进入调试机</p>
+</blockquote>
+
+<p>打开WinDBG，选择<code>Kernel debug</code> 或使用快捷键<code>Ctrl+K</code>，输入对应的Port，波特率输入115200</p>
+
+<p><img src="media/15100483191511/15100523183523.jpg" alt=""/></p>
+
+<p>点击OK后，WinDBG出现等重新待连接字样</p>
+
+<p><img src="media/15100483191511/15100524420987.jpg" alt=""/></p>
+
+<p>这时候可以重启<code>被调试机器</code>，重启的时候选择我们创建的引导启动项</p>
+
+<p><img src="media/15100483191511/15100525342172.jpg" alt=""/></p>
+
+<p>然后会卡在这个界面</p>
+
+<p><img src="media/15100483191511/15100525700582.jpg" alt=""/></p>
+
+<p>这时候我们的<code>调试机</code>的WinDBG已经有一些反应了！</p>
+
+<p><img src="media/15100483191511/15100526084061.jpg" alt=""/></p>
+
+<p>虽然显示<code>not avaliable</code>，多等待几秒，就会出现连接成功，</p>
+
+<p>连接成功会出现<code>Kernel Debugger connection established.</code> 字样</p>
+
+<p><img src="media/15100483191511/15100526809137.jpg" alt=""/></p>
+
+<p>这时候已经可以双机调试啦，按F5启动被调试机吧~</p>
+
+<p><img src="media/15100483191511/15100528083657.jpg" alt=""/></p>
+
+<h3 id="toc_5">0x06 参考资料</h3>
+
+<ul>
+<li><a href="https://ephrain.net/windbg-%E5%9C%A8-mac-virtualbox%E4%B8%8A%E8%A8%AD%E5%AE%9A-windows-kernel-debugging-%E7%92%B0%E5%A2%83/">https://ephrain.net/windbg-%E5%9C%A8-mac-virtualbox%E4%B8%8A%E8%A8%AD%E5%AE%9A-windows-kernel-debugging-%E7%92%B0%E5%A2%83/</a></li>
+<li><a href="https://github.com/nixawk/Awesome-Windows-Debug/issues/3">https://github.com/nixawk/Awesome-Windows-Debug/issues/3</a></li>
+<li><a href="http://blog.csdn.net/one_in_one/article/details/51754938">http://blog.csdn.net/one_in_one/article/details/51754938</a></li>
+</ul>
+
+			</div>
+
+		
+	  
+		<footer>
+		 <p class="meta">
+
+			<strong>Categories:</strong>&nbsp; 
+			<span class="categories">
+			
+			    <a class='category' href='%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91.html'>驱动开发</a>&nbsp;
+			 
+			</span>
+		    </p>
+		    <p class="meta">
+		      
+		 </p>
+	    
+		<div class="sharing">
+		  
+          
+
+          
+
+		</div>
+
+	    <p class="meta">
+	    
+	        <a class="basic-alignment left" href="15101847974528.html" 
+	        title="Previous Post: [Virtual Studio] 编译驱动报错 1>22.9.7: DriverVer set to a date in the future (postdated DriverVer not allowed)">&laquo; [Virtual Studio] 编译驱动报错 1>22.9.7: DriverVer set to a date in the future (postdated DriverVer not allowed)</a>
+	    
+	    
+	        <a class="basic-alignment right" href="15100336071888.html" 
+	        title="Next Post: 编写驱动前需要的准备">编写驱动前需要的准备 &raquo;</a>
+	    
+	    </p>
+	  </footer>
+	</article>
+</div>
+ <aside class="sidebar"> 
+
+	<section>
+	  <h1>Categories</h1>
+	  <ul id="recent_posts">
+	  
+	      <li class="post">
+	        <a href="%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91.html"><strong>驱动开发&nbsp;(3)</strong></a>
+	        
+	        
+	        
+	      </li>
+	  
+	      <li class="post">
+	        <a href="C/C++.html"><strong>C/C++&nbsp;(1)</strong></a>
+	        
+	        
+	        
+	      </li>
+	  
+	      <li class="post">
+	        <a href="%E8%84%B1%E5%A3%B3%E7%BB%83%E4%B9%A0.html"><strong>脱壳练习&nbsp;(2)</strong></a>
+	        
+	        
+	        
+	      </li>
+	   
+	  </ul>
+	</section>
+	<section>
+	  <h1>Recent Posts</h1>
+	  <ul id="recent_posts">
+	  
+	      
+		      <li class="post">
+		        <a href="15138357843110.html">Win10Dev & Reverse Engineering Environment</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15101847974528.html">[Virtual Studio] 编译驱动报错 1>22.9.7: DriverVer set to a date in the future (postdated DriverVer not allowed)</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15100483191511.html">配置Windows内核调试环境-[Mac版]</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15100336071888.html">编写驱动前需要的准备</a>
+		      </li>
+	     
+	  
+	      
+		      <li class="post">
+		        <a href="15096836947247.html">C/C++ 常见类型转换</a>
+		      </li>
+	     
+	  
+	      
+	  
+	      
+	   
+	  </ul>
+	</section>
+	
+</aside> </div></div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  -
+  <span class="credit">Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a> &nbsp;&nbsp; Theme by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+  
+    
+
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+
+</body>
+</html>
