@@ -92,29 +92,15 @@ $(document).ready(function(event) {
 
 <p>在调试Office漏洞的一个POC，该POC是由于WORD调用了EQNEDT32.exe然后触发的漏洞，随后shellcode调用了计算器。但是当我们看到计算器时，再查看进程列表，或者当前进程树，已经看不到是谁启动的calc.exe了，可以使用<code>ProcessMonitor</code>来根据事件，并查看历史进程快照！</p>
 
-<p><img src="media/15142083341259/15156578788045.jpg" alt=""/></p>
-
-<h2 id="toc_1">0x01 GFlags.exe 附加调试</h2>
-
-<p>GFlags.exe微软内核调试工具WinDBG安装目录下的一个小工具，这个工具可以很方便的让我们设置在一个程序启动的时候<code>自动使用Debugger来附加</code></p>
-
-<p><img src="media/15142083341259/15156582873490.jpg" alt=""/></p>
-
-<p><strong>效果</strong></p>
-
-<p><img src="media/15142083341259/15156582615823.jpg" alt=""/></p>
-
-<p><strong>参考链接</strong></p>
-
-<ul>
-<li><a href="http://blog.csdn.net/lunasea0_0/article/details/6292968">Windbg的gflags.exe -- Attach调试利器</a></li>
-<li><a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/procmon">Process Monitor v3.40</a></li>
-</ul>
 
 
 		</div>
 
-		
+		 
+		 <footer>
+      	<a rel="full-article" href="15142083341259.html#more">read more &rarr;</a>
+    	</footer>
+    	
 
 	</article>
   

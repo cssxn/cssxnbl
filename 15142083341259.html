@@ -89,6 +89,8 @@ $(document).ready(function(event) {
 
 <p>在调试Office漏洞的一个POC，该POC是由于WORD调用了EQNEDT32.exe然后触发的漏洞，随后shellcode调用了计算器。但是当我们看到计算器时，再查看进程列表，或者当前进程树，已经看不到是谁启动的calc.exe了，可以使用<code>ProcessMonitor</code>来根据事件，并查看历史进程快照！</p>
 
+<span id="more"></span><!-- more -->
+
 <p><img src="media/15142083341259/15156578788045.jpg" alt=""/></p>
 
 <h2 id="toc_1">0x01 GFlags.exe 附加调试</h2>
