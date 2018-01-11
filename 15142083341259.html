@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <title>
     
-  小时候很萌
+  Some Tricks of Attach Debugging - 小时候很萌
   
 
   </title>
@@ -78,17 +78,14 @@ $(document).ready(function(event) {
 </nav>
   <div id="main">
     <div id="content"> 
-<div class="blog-index">
-
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15142083341259.html">Some Tricks of Attach Debugging</a></h1>
-			<p class="meta"><time datetime="2017-12-25T21:25:34+08:00" 
-			pubdate data-updated="true">2017/12/25</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<h2 id="toc_0">0x00 使用ProcessMonitor 查看进程快照</h2>
+<div>
+	<article class="hentry" role="article">
+	<header>
+			  	<h1 class="entry-title">Some Tricks of Attach Debugging</h1>
+				<p class="meta"><time datetime="2017-12-25T21:25:34+08:00" pubdate data-updated="true">2017/12/25</time></p>
+			 </header>
+		  	<div class="entry-content">
+			  	<h2 id="toc_0">0x00 使用ProcessMonitor 查看进程快照</h2>
 
 <p>在调试Office漏洞的一个POC，该POC是由于WORD调用了EQNEDT32.exe然后触发的漏洞，随后shellcode调用了计算器。但是当我们看到计算器时，再查看进程列表，或者当前进程树，已经看不到是谁启动的calc.exe了，可以使用<code>ProcessMonitor</code>来根据事件，并查看历史进程快照！</p>
 
@@ -111,175 +108,41 @@ $(document).ready(function(event) {
 <li><a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/procmon">Process Monitor v3.40</a></li>
 </ul>
 
-
-		</div>
+			</div>
 
 		
+	  
+		<footer>
+		 <p class="meta">
 
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15138357843110.html">Win10Dev & Reverse Engineering Environment</a></h1>
-			<p class="meta"><time datetime="2017-12-21T13:56:24+08:00" 
-			pubdate data-updated="true">2017/12/21</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<blockquote>
-<p>基于微软提供的Win10开发虚拟机环境配置的逆向加开发环境！</p>
-</blockquote>
-
-<p>微软官网提供了多种Win10开发环境的虚拟机版本下载，我选择的是<code>VMWare</code>版本对其进行扩展，增加了<code>VirtualStudio2017</code>的离线帮助文档、WDK驱动开发环境、RedASM汇编开发IED、<code>JDK</code>、<code>py2/3</code>以及一些简单的<code>Windows逆向工具</code>、<code>Android逆向套装</code>还有<code>夜神模拟器</code>，还有一些常用的手册。</p>
-
-
-
-		</div>
-
-		 
-		 <footer>
-      	<a rel="full-article" href="15138357843110.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15101847974528.html">[Virtual Studio] 编译驱动报错 1>22.9.7: DriverVer set to a date in the future (postdated DriverVer not allowed)</a></h1>
-			<p class="meta"><time datetime="2017-11-09T07:46:37+08:00" 
-			pubdate data-updated="true">2017/11/9</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	
-
-		</div>
-
-		 
-		 <footer>
-      	<a rel="full-article" href="15101847974528.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15100483191511.html">配置Windows内核调试环境-[Mac版]</a></h1>
-			<p class="meta"><time datetime="2017-11-07T17:51:59+08:00" 
-			pubdate data-updated="true">2017/11/7</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<p>折腾了好久，终于好了，参考了很多残缺不全的教程，配置过程中遇到了很多问题！</p>
-
-
-
-		</div>
-
-		 
-		 <footer>
-      	<a rel="full-article" href="15100483191511.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15100336071888.html">编写驱动前需要的准备</a></h1>
-			<p class="meta"><time datetime="2017-11-07T13:46:47+08:00" 
-			pubdate data-updated="true">2017/11/7</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<p>最近学习了windows内核编程，在开始编写驱动程序之前，需要修改一下系统的注册表，否则WinDBG不能显示驱动程序打印的调试信息</p>
-
-
-
-		</div>
-
-		 
-		 <footer>
-      	<a rel="full-article" href="15100336071888.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15096836947247.html">C/C++ 常见类型转换</a></h1>
-			<p class="meta"><time datetime="2017-11-03T12:34:54+08:00" 
-			pubdate data-updated="true">2017/11/3</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<p>收集一些常见的类型转换例子</p>
-
-
-
-		</div>
-
-		 
-		 <footer>
-      	<a rel="full-article" href="15096836947247.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15094117807338.html">写壳过程中遇到的问题</a></h1>
-			<p class="meta"><time datetime="2017-10-31T09:03:00+08:00" 
-			pubdate data-updated="true">2017/10/31</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<p>最近的项目是使用C++和内联汇编写一款壳，记录一下在写壳过程中遇到了一些小问题</p>
-
-
-
-		</div>
-
-		 
-		 <footer>
-      	<a rel="full-article" href="15094117807338.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15091608826035.html">手脱FSG2.0</a></h1>
-			<p class="meta"><time datetime="2017-10-28T11:21:22+08:00" 
-			pubdate data-updated="true">2017/10/28</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<p>FSG是一款压缩壳，它的压缩强度比ASPack更好一点！一般压缩壳的OEP如果发现<code>PUSHAD</code> 、<code>PUSHAF</code>等保存环境的汇编指令，我们可以使用ESP定律来找到原始程序OEP的位置。</p>
-
-
-
-		</div>
-
-		 
-		 <footer>
-      	<a rel="full-article" href="15091608826035.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
-  
-	<div class="pagination">
-	
-<a href="archives.html">Blog Archives</a>
-	 
+			<strong>Categories:</strong>&nbsp; 
+			<span class="categories">
+			
+			    <a class='category' href='Windows%E9%80%86%E5%90%91.html'>Windows逆向</a>&nbsp;
+			 
+			</span>
+		    </p>
+		    <p class="meta">
+		      
+		 </p>
 	    
-	</div>
+		<div class="sharing">
+		  
+          
+
+          
+
+		</div>
+
+	    <p class="meta">
+	    
+	    
+	        <a class="basic-alignment right" href="15138357843110.html" 
+	        title="Next Post: Win10Dev & Reverse Engineering Environment">Win10Dev & Reverse Engineering Environment &raquo;</a>
+	    
+	    </p>
+	  </footer>
+	</article>
 </div>
  <aside class="sidebar"> 
 

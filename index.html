@@ -82,6 +82,44 @@ $(document).ready(function(event) {
 
 	<article>
 		 <header>
+		  	<h1 class="entry-title"><a href="15142083341259.html">Some Tricks of Attach Debugging</a></h1>
+			<p class="meta"><time datetime="2017-12-25T21:25:34+08:00" 
+			pubdate data-updated="true">2017/12/25</time></p>
+		 </header>
+	  	<div class="entry-content">
+		  	
+		  	<h2 id="toc_0">0x00 使用ProcessMonitor 查看进程快照</h2>
+
+<p>在调试Office漏洞的一个POC，该POC是由于WORD调用了EQNEDT32.exe然后触发的漏洞，随后shellcode调用了计算器。但是当我们看到计算器时，再查看进程列表，或者当前进程树，已经看不到是谁启动的calc.exe了，可以使用<code>ProcessMonitor</code>来根据事件，并查看历史进程快照！</p>
+
+<p><img src="media/15142083341259/15156578788045.jpg" alt=""/></p>
+
+<h2 id="toc_1">0x01 GFlags.exe 附加调试</h2>
+
+<p>GFlags.exe微软内核调试工具WinDBG安装目录下的一个小工具，这个工具可以很方便的让我们设置在一个程序启动的时候<code>自动使用Debugger来附加</code></p>
+
+<p><img src="media/15142083341259/15156582873490.jpg" alt=""/></p>
+
+<p><strong>效果</strong></p>
+
+<p><img src="media/15142083341259/15156582615823.jpg" alt=""/></p>
+
+<p><strong>参考链接</strong></p>
+
+<ul>
+<li><a href="http://blog.csdn.net/lunasea0_0/article/details/6292968">Windbg的gflags.exe -- Attach调试利器</a></li>
+<li><a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/procmon">Process Monitor v3.40</a></li>
+</ul>
+
+
+		</div>
+
+		
+
+	</article>
+ 
+	<article>
+		 <header>
 		  	<h1 class="entry-title"><a href="15138357843110.html">Win10Dev & Reverse Engineering Environment</a></h1>
 			<p class="meta"><time datetime="2017-12-21T13:56:24+08:00" 
 			pubdate data-updated="true">2017/12/21</time></p>
@@ -269,12 +307,25 @@ $(document).ready(function(event) {
 	        
 	        
 	      </li>
+	  
+	      <li class="post">
+	        <a href="Windows%E9%80%86%E5%90%91.html"><strong>Windows逆向&nbsp;(1)</strong></a>
+	        
+	        
+	        
+	      </li>
 	   
 	  </ul>
 	</section>
 	<section>
 	  <h1>Recent Posts</h1>
 	  <ul id="recent_posts">
+	  
+	      
+		      <li class="post">
+		        <a href="15142083341259.html">Some Tricks of Attach Debugging</a>
+		      </li>
+	     
 	  
 	      
 		      <li class="post">
@@ -301,10 +352,6 @@ $(document).ready(function(event) {
 	     
 	  
 	      
-		      <li class="post">
-		        <a href="15096836947247.html">C/C++ 常见类型转换</a>
-		      </li>
-	     
 	  
 	      
 	  
