@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <title>
     
-  编写驱动前需要的准备 - 小时候很萌
+  AndroidStudio 死循环Scanning files to index - 小时候很萌
   
 
   </title>
@@ -81,37 +81,19 @@ $(document).ready(function(event) {
 <div>
 	<article class="hentry" role="article">
 	<header>
-			  	<h1 class="entry-title">编写驱动前需要的准备</h1>
-				<p class="meta"><time datetime="2017-11-07T13:46:47+08:00" pubdate data-updated="true">2017/11/7</time></p>
+			  	<h1 class="entry-title">AndroidStudio 死循环Scanning files to index</h1>
+				<p class="meta"><time datetime="2018-01-22T17:59:34+08:00" pubdate data-updated="true">2018/1/22</time></p>
 			 </header>
 		  	<div class="entry-content">
-			  	<p>最近学习了windows内核编程，在开始编写驱动程序之前，需要修改一下系统的注册表，否则WinDBG不能显示驱动程序打印的调试信息</p>
+			  	<p>不小心按了什么快捷键，突然CPU飙起来了，原来AndroidStudio底部多出了一个正在运行的任务进度条<code>Scanning files to index</code> 而且这个东西等了好久没完没了！</p>
 
 <span id="more"></span><!-- more -->
 
-<pre><code>[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter]
- 
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter]
-&quot;DEFAULT&quot;=dword:0000000f
-</code></pre>
+<p><img src="media/15166151741556/15166152851243.jpg" alt=""/></p>
 
-<p>在windows注册表找到上面的<code>Debug Print Filter</code>注册表项，如果没有则需要手动创建一个Key</p>
+<p>解决方法：点击File &gt; Invalidate Caches/Restart </p>
 
-<p><img src="media/15100336071888/15100343531127.jpg" alt=""/></p>
-
-<p>创建完成后，右键菜单刚才创建的<code>Debug Print Filter</code>，选择<code>New-&gt;DWORD(32-bit) Value</code></p>
-
-<p><img src="media/15100336071888/15100344317493.jpg" alt=""/></p>
-
-<p>然后改名为<code>default</code>，然后双击修改它</p>
-
-<p><img src="media/15100336071888/15100345023943.jpg" alt=""/></p>
-
-<p>将<code>default</code>的值<code>0</code>改为<code>f</code>即可</p>
-
-<p><img src="media/15100336071888/15100346001661.jpg" alt=""/></p>
-
-<p>修改完成后，需要重启虚拟机的windows系统才能生效！</p>
+<p>重启后，又重新索引了一遍，就好了！</p>
 
 			</div>
 
@@ -123,7 +105,7 @@ $(document).ready(function(event) {
 			<strong>Categories:</strong>&nbsp; 
 			<span class="categories">
 			
-			    <a class='category' href='%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91.html'>驱动开发</a>&nbsp;
+			    <a class='category' href='Android%E5%BC%80%E5%8F%91.html'>Android开发</a>&nbsp;
 			 
 			</span>
 		    </p>
@@ -141,12 +123,12 @@ $(document).ready(function(event) {
 
 	    <p class="meta">
 	    
-	        <a class="basic-alignment left" href="15100483191511.html" 
-	        title="Previous Post: 配置Windows内核调试环境-[Mac版]">&laquo; 配置Windows内核调试环境-[Mac版]</a>
+	        <a class="basic-alignment left" href="15167863691006.html" 
+	        title="Previous Post: Android 6.0以后获取当前运行的App的包名">&laquo; Android 6.0以后获取当前运行的App的包名</a>
 	    
 	    
-	        <a class="basic-alignment right" href="15096836947247.html" 
-	        title="Next Post: C/C++ 常见类型转换">C/C++ 常见类型转换 &raquo;</a>
+	        <a class="basic-alignment right" href="15165856601700.html" 
+	        title="Next Post: Activity 隐藏启动页面">Activity 隐藏启动页面 &raquo;</a>
 	    
 	    </p>
 	  </footer>

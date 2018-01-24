@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <title>
     
-  编写驱动前需要的准备 - 小时候很萌
+  Android 6.0以后获取当前运行的App的包名 - 小时候很萌
   
 
   </title>
@@ -81,37 +81,106 @@ $(document).ready(function(event) {
 <div>
 	<article class="hentry" role="article">
 	<header>
-			  	<h1 class="entry-title">编写驱动前需要的准备</h1>
-				<p class="meta"><time datetime="2017-11-07T13:46:47+08:00" pubdate data-updated="true">2017/11/7</time></p>
+			  	<h1 class="entry-title">Android 6.0以后获取当前运行的App的包名</h1>
+				<p class="meta"><time datetime="2018-01-24T17:32:49+08:00" pubdate data-updated="true">2018/1/24</time></p>
 			 </header>
 		  	<div class="entry-content">
-			  	<p>最近学习了windows内核编程，在开始编写驱动程序之前，需要修改一下系统的注册表，否则WinDBG不能显示驱动程序打印的调试信息</p>
+			  	<p>在开发一个特别的功能时，需要判断当前手机运行的是某某App的情况下进行截屏。</p>
 
 <span id="more"></span><!-- more -->
 
-<pre><code>[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter]
- 
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter]
-&quot;DEFAULT&quot;=dword:0000000f
+<h2 id="toc_0">0x00 Andorid5.0以前的获取方式</h2>
+
+<p>在Android5.0以前可以随便搞，使用下面代码就可以直接获取到当前运行的app包名</p>
+
+<pre><code>ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+ComponentName cn = activityManager.getRunningTasks(1).get(0).topActivity;
 </code></pre>
 
-<p>在windows注册表找到上面的<code>Debug Print Filter</code>注册表项，如果没有则需要手动创建一个Key</p>
+<h2 id="toc_1">0x01 Android6.0获取的方式 - Step 1</h2>
 
-<p><img src="media/15100336071888/15100343531127.jpg" alt=""/></p>
+<p>第一步修改AndroidManifest.xml文件，添加相关信息</p>
 
-<p>创建完成后，右键菜单刚才创建的<code>Debug Print Filter</code>，选择<code>New-&gt;DWORD(32-bit) Value</code></p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!--注意这里：添加xmlns:tools=&quot;http://schemas.android.com/tools&quot;--&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    package=&quot;com.dumaisoft.wxb.gettopactivity&quot;&gt;
 
-<p><img src="media/15100336071888/15100344317493.jpg" alt=""/></p>
+    &lt;application
+        ...
+    &lt;/application&gt;
+    &lt;!--注意这里：添加权限--&gt;
+    &lt;uses-permission
+        android:name=&quot;android.permission.PACKAGE_USAGE_STATS&quot;
+        tools:ignore=&quot;ProtectedPermissions&quot;/&gt;
 
-<p>然后改名为<code>default</code>，然后双击修改它</p>
+&lt;/manifest&gt;
+</code></pre>
 
-<p><img src="media/15100336071888/15100345023943.jpg" alt=""/></p>
+<h2 id="toc_2">0x02 Step 2 - 检测用户是否开启了权限</h2>
 
-<p>将<code>default</code>的值<code>0</code>改为<code>f</code>即可</p>
+<p>检测用户是否对本app开启了“Apps with usage access”权限:</p>
 
-<p><img src="media/15100336071888/15100346001661.jpg" alt=""/></p>
+<pre><code>    private boolean hasPermission() {
+        AppOpsManager appOps = (AppOpsManager)
+                getSystemService(Context.APP_OPS_SERVICE);
+        int mode = 0;
+        if (Build.VERSION.SDK_INT &gt; Build.VERSION_CODES.KITKAT) {
+            mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(), getPackageName());
+        }
+        return mode == AppOpsManager.MODE_ALLOWED;
+    }
+</code></pre>
 
-<p>修改完成后，需要重启虚拟机的windows系统才能生效！</p>
+<p>权限申请回调：</p>
+
+<pre><code>    private static final int MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS = 1101;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS) {
+            if (!hasPermission()) {
+                //若用户未开启权限，则引导用户开启“Apps with usage access”权限
+                startActivityForResult(
+                        new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),
+                        MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS);
+            }
+        }
+    }
+</code></pre>
+
+<h2 id="toc_3">0x03 Step 3 - 获取当前运行的app</h2>
+
+<p>使用UsageStatsManager来获取当前运行的app，为了方便查看日志，可以把这个函数写在Service中</p>
+
+<pre><code> private void getTopApp(Context context) {
+            if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) {
+                UsageStatsManager m = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+                if (m != null) {
+                    long now = System.currentTimeMillis();
+                    //获取60秒之内的应用数据
+                    List&lt;UsageStats&gt; stats = m.queryUsageStats(UsageStatsManager.INTERVAL_BEST, now - 60 * 1000, now);
+                    Log.i(TAG, &quot;Running app number in last 60 seconds : &quot; + stats.size());
+
+                    String topActivity = &quot;&quot;;
+
+                    //取得最近运行的一个app，即当前运行的app
+                    if ((stats != null) &amp;&amp; (!stats.isEmpty())) {
+                        int j = 0;
+                        for (int i = 0; i &lt; stats.size(); i++) {
+                            if (stats.get(i).getLastTimeUsed() &gt; stats.get(j).getLastTimeUsed()) {
+                                j = i;
+                            }
+                        }
+                        topActivity = stats.get(j).getPackageName();
+                    }
+                    Log.i(TAG, &quot;top running app is : &quot;+topActivity);
+                }
+            }
+        }
+</code></pre>
 
 			</div>
 
@@ -123,7 +192,7 @@ $(document).ready(function(event) {
 			<strong>Categories:</strong>&nbsp; 
 			<span class="categories">
 			
-			    <a class='category' href='%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91.html'>驱动开发</a>&nbsp;
+			    <a class='category' href='Android%E5%BC%80%E5%8F%91.html'>Android开发</a>&nbsp;
 			 
 			</span>
 		    </p>
@@ -141,12 +210,9 @@ $(document).ready(function(event) {
 
 	    <p class="meta">
 	    
-	        <a class="basic-alignment left" href="15100483191511.html" 
-	        title="Previous Post: 配置Windows内核调试环境-[Mac版]">&laquo; 配置Windows内核调试环境-[Mac版]</a>
 	    
-	    
-	        <a class="basic-alignment right" href="15096836947247.html" 
-	        title="Next Post: C/C++ 常见类型转换">C/C++ 常见类型转换 &raquo;</a>
+	        <a class="basic-alignment right" href="15166151741556.html" 
+	        title="Next Post: AndroidStudio 死循环Scanning files to index">AndroidStudio 死循环Scanning files to index &raquo;</a>
 	    
 	    </p>
 	  </footer>

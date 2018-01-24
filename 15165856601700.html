@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <title>
     
-  编写驱动前需要的准备 - 小时候很萌
+  Activity 隐藏启动页面 - 小时候很萌
   
 
   </title>
@@ -81,37 +81,91 @@ $(document).ready(function(event) {
 <div>
 	<article class="hentry" role="article">
 	<header>
-			  	<h1 class="entry-title">编写驱动前需要的准备</h1>
-				<p class="meta"><time datetime="2017-11-07T13:46:47+08:00" pubdate data-updated="true">2017/11/7</time></p>
+			  	<h1 class="entry-title">Activity 隐藏启动页面</h1>
+				<p class="meta"><time datetime="2018-01-22T09:47:40+08:00" pubdate data-updated="true">2018/1/22</time></p>
 			 </header>
 		  	<div class="entry-content">
-			  	<p>最近学习了windows内核编程，在开始编写驱动程序之前，需要修改一下系统的注册表，否则WinDBG不能显示驱动程序打印的调试信息</p>
+			  	<p>开发Android木马时，一定会有监听开机广播，然后自动启动我们的Activity，但是Activity的页面又不能被用户看到，所以需要隐藏Activity，这里需要用到Android的theme来实现。</p>
 
 <span id="more"></span><!-- more -->
 
-<pre><code>[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter]
- 
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter]
-&quot;DEFAULT&quot;=dword:0000000f
+<h2 id="toc_0">0x00 AndroidManifest.xml</h2>
+
+<p>在AndroidManifest.xml文件中，修改theme属性为<code>@android:style/Theme.NoDisplay</code></p>
+
+<p>正确使用方式：</p>
+
+<pre><code>&lt;application android:label=&quot;Kill&quot; android:theme=&quot;@android:style/Theme.NoDisplay&quot;&gt;
+
+&lt;/application&gt;
+
 </code></pre>
 
-<p>在windows注册表找到上面的<code>Debug Print Filter</code>注册表项，如果没有则需要手动创建一个Key</p>
+<p>你要隐藏的页面Activity也要改一下透明主题：</p>
 
-<p><img src="media/15100336071888/15100343531127.jpg" alt=""/></p>
+<pre><code>&lt;activity android:name=&quot;.MainActivity&quot; android:theme=&quot;@android:style/Theme.Translucent.NoTitleBar&quot; &gt;
 
-<p>创建完成后，右键菜单刚才创建的<code>Debug Print Filter</code>，选择<code>New-&gt;DWORD(32-bit) Value</code></p>
+&lt;/activity&gt;
+</code></pre>
 
-<p><img src="media/15100336071888/15100344317493.jpg" alt=""/></p>
+<h2 id="toc_1">0x01 常见错误处理</h2>
 
-<p>然后改名为<code>default</code>，然后双击修改它</p>
+<p>我在Android6.0版本的模拟器中实验发现并没有找到<code>Theme.NoDisplay</code>这个主题，原来是因为我没有修改前缀，要注意前缀是：<code>@android:style/xxx</code>开头的，不然可能会提示没有<code>Theme.NoDisplay</code>这个主题。</p>
 
-<p><img src="media/15100336071888/15100345023943.jpg" alt=""/></p>
+<p>默认新建的App文件中是这样的</p>
 
-<p>将<code>default</code>的值<code>0</code>改为<code>f</code>即可</p>
+<p><img src="media/15165856601700/15167855904598.jpg" alt=""/></p>
 
-<p><img src="media/15100336071888/15100346001661.jpg" alt=""/></p>
+<p>修改Application的Theme为透明主题后</p>
 
-<p>修改完成后，需要重启虚拟机的windows系统才能生效！</p>
+<p><img src="media/15165856601700/15167856517446.jpg" alt=""/></p>
+
+<p>安装到模拟器上测试，直接报错：</p>
+
+<p><img src="media/15165856601700/15167857725097.jpg" alt=""/></p>
+
+<p>错误原因：</p>
+
+<pre><code>Caused by: java.lang.IllegalStateException: You need to use a Theme.AppCompat theme (or descendant) with this activity.
+</code></pre>
+
+<p>解决方法：</p>
+
+<p>由于我们创建应用的时候勾选了使用兼容包，所以Activity默认集成自AppCompatActivity，只需要把它改成Activity就行了</p>
+
+<p><img src="media/15165856601700/15167858173229.jpg" alt=""/></p>
+
+<p>修改后，再次安装并启动，又报了另一个错：</p>
+
+<p><img src="media/15165856601700/15167859471278.jpg" alt=""/></p>
+
+<p>错误关键字：</p>
+
+<pre><code>did not call finish() prior to onResume() completing
+</code></pre>
+
+<p>解决：</p>
+
+<p>在Activity的声明文件中添加一个透明的主题</p>
+
+<pre><code>android:theme=&quot;@android:style/Theme.Translucent.NoTitleBar&quot;
+</code></pre>
+
+<p><img src="media/15165856601700/15167862272066.jpg" alt=""/></p>
+
+<p>效果图：</p>
+
+<p>图中的<code>helloworld</code>就是MainActivity中的Text文本</p>
+
+<p><img src="media/15165856601700/15167862438717.jpg" alt=""/></p>
+
+<h2 id="toc_2">0x02 参考资源</h2>
+
+<ul>
+<li><a href="http://blog.csdn.net/u010784887/article/details/53645050">http://blog.csdn.net/u010784887/article/details/53645050</a></li>
+<li><a href="http://blog.csdn.net/ouyang_peng/article/details/51334761">http://blog.csdn.net/ouyang_peng/article/details/51334761</a></li>
+<li><a href="http://blog.csdn.net/u011791526/article/details/52066031">http://blog.csdn.net/u011791526/article/details/52066031</a></li>
+</ul>
 
 			</div>
 
@@ -123,7 +177,7 @@ $(document).ready(function(event) {
 			<strong>Categories:</strong>&nbsp; 
 			<span class="categories">
 			
-			    <a class='category' href='%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91.html'>驱动开发</a>&nbsp;
+			    <a class='category' href='Android%E5%BC%80%E5%8F%91.html'>Android开发</a>&nbsp;
 			 
 			</span>
 		    </p>
@@ -141,12 +195,12 @@ $(document).ready(function(event) {
 
 	    <p class="meta">
 	    
-	        <a class="basic-alignment left" href="15100483191511.html" 
-	        title="Previous Post: 配置Windows内核调试环境-[Mac版]">&laquo; 配置Windows内核调试环境-[Mac版]</a>
+	        <a class="basic-alignment left" href="15166151741556.html" 
+	        title="Previous Post: AndroidStudio 死循环Scanning files to index">&laquo; AndroidStudio 死循环Scanning files to index</a>
 	    
 	    
-	        <a class="basic-alignment right" href="15096836947247.html" 
-	        title="Next Post: C/C++ 常见类型转换">C/C++ 常见类型转换 &raquo;</a>
+	        <a class="basic-alignment right" href="15142083341259.html" 
+	        title="Next Post: Some Tricks of Attach Debugging">Some Tricks of Attach Debugging &raquo;</a>
 	    
 	    </p>
 	  </footer>
