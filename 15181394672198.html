@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <title>
     
-  脱壳练习 - 小时候很萌
+  Windows开启防火墙后ping不通 - 小时候很萌
   
 
   </title>
@@ -78,58 +78,66 @@ $(document).ready(function(event) {
 </nav>
   <div id="main">
     <div id="content"> 
-<div class="blog-index">
+<div>
+	<article class="hentry" role="article">
+	<header>
+			  	<h1 class="entry-title">Windows开启防火墙后ping不通</h1>
+				<p class="meta"><time datetime="2018-02-09T09:24:27+08:00" pubdate data-updated="true">2018/2/9</time></p>
+			 </header>
+		  	<div class="entry-content">
+			  	<p>VMWare虚拟机中安装Win7后，主机ping不通虚拟机，后来发现关闭防火墙后可以ping通，但是又不想关闭防火墙</p>
 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15094117807338.html">写壳过程中遇到的问题</a></h1>
-			<p class="meta"><time datetime="2017-10-31T09:03:00+08:00" 
-			pubdate data-updated="true">2017/10/31</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<p>最近的项目是使用C++和内联汇编写一款壳，记录一下在写壳过程中遇到了一些小问题</p>
+<span id="more"></span><!-- more -->
 
+<p>记得以前学网络协议的时候ping命令的实现是发送icmp包，原来开启防火墙默认关闭了icmp回显示，导致ping不通的效果，要解决这个问题很简单，开启icmp回显就行了！</p>
 
+<p>以管理员权限启动CMD，然后输入下面命令</p>
 
-		</div>
+<p><strong>开启icmp回显</strong></p>
 
-		 
-		 <footer>
-      	<a rel="full-article" href="15094117807338.html#more">read more &rarr;</a>
-    	</footer>
-    	
+<pre><code>netsh firewall set icmpsetting 8
+</code></pre>
 
-	</article>
- 
-	<article>
-		 <header>
-		  	<h1 class="entry-title"><a href="15091608826035.html">手脱FSG2.0</a></h1>
-			<p class="meta"><time datetime="2017-10-28T11:21:22+08:00" 
-			pubdate data-updated="true">2017/10/28</time></p>
-		 </header>
-	  	<div class="entry-content">
-		  	
-		  	<p>FSG是一款压缩壳，它的压缩强度比ASPack更好一点！一般压缩壳的OEP如果发现<code>PUSHAD</code> 、<code>PUSHAF</code>等保存环境的汇编指令，我们可以使用ESP定律来找到原始程序OEP的位置。</p>
+<p><strong>关闭icmp回显</strong></p>
 
+<pre><code>netsh firewall set icmpsetting 8 disable
+</code></pre>
 
+			</div>
 
-		</div>
+		
+	  
+		<footer>
+		 <p class="meta">
 
-		 
-		 <footer>
-      	<a rel="full-article" href="15091608826035.html#more">read more &rarr;</a>
-    	</footer>
-    	
-
-	</article>
-  
-	<div class="pagination">
-	
-<a href="archives.html">Blog Archives</a>
-	 
+			<strong>Categories:</strong>&nbsp; 
+			<span class="categories">
+			
+			    <a class='category' href='%E7%8E%AF%E5%A2%83%E8%AE%BE%E7%BD%AE.html'>环境设置</a>&nbsp;
+			 
+			</span>
+		    </p>
+		    <p class="meta">
+		      
+		 </p>
 	    
-	</div>
+		<div class="sharing">
+		  
+          
+
+          
+
+		</div>
+
+	    <p class="meta">
+	    
+	    
+	        <a class="basic-alignment right" href="15171902420313.html" 
+	        title="Next Post: CVE-2010-2883-Adobe Reader TTF 字体SING表栈溢出漏洞">CVE-2010-2883-Adobe Reader TTF 字体SING表栈溢出漏洞 &raquo;</a>
+	    
+	    </p>
+	  </footer>
+	</article>
 </div>
  <aside class="sidebar"> 
 
